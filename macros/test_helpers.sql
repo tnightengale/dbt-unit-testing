@@ -32,8 +32,17 @@
   {{ return (mapped_items) }}
 {% endmacro %}
 
-{% macro node_by_id (node_id) %}]
-  {{ return (graph.nodes[node_id] if node_id.startswith('model') or node_id.startswith('seed') else graph.sources[node_id]) }}
+{% macro node_by_id(node_id) %}]
+
+  {% if node_id.startswith('model') or node_id.startswith('seed') or node_id.startswith('snapshot') %}
+    {% set node = graph.nodes[node_id] %}
+  {% elif  node_id.startswith('source') %}
+    {% set node = graph.sources[node_id] %}
+  {% else %}
+    {% do exceptions.raise_compiler_error("Invalid node type for node: " ~ node_id) %}
+  {% endif %}
+
+  {{ return(node) }}
 {% endmacro %}
 
 {% macro model_node (model_name) %}
@@ -93,6 +102,3 @@
     {% endif %}
   {% endif %}
 {% endmacro %}
-
-
-
