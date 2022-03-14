@@ -33,7 +33,7 @@
 {% endmacro %}
 
 {% macro node_by_id (node_id) %}
-  {{ return (graph.nodes[node_id] if node_id.startswith('model') else graph.sources[node_id]) }}
+  {{ return (graph.nodes[node_id] if node_id.startswith('model') or node_id.startswith('seed') else graph.sources[node_id]) }}
 {% endmacro %}
 
 {% macro model_node (model_name) %}
@@ -68,4 +68,3 @@
     {% endif %}
   {% endif %}
 {% endmacro %}
-
