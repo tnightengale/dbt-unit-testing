@@ -60,10 +60,10 @@
   ) %}
   {% if source_relation | length > 0 %}
     {%- set source_sql -%}
-      select * from {{ node.schema }}.{{ node.name }} where false
+      select * from {{ node.database }}.{{ node.schema }}.{{ node.name }} where false
     {%- endset -%}
     select {{ dbt_unit_testing.extract_columns_list(source_sql) | join (",") }}
-    from {{ node.schema }}.{{ node.name }}
+    from {{ node.database }}.{{ node.schema }}.{{ node.name }}
     where false
   {% else %}
     {% if node.columns %}
