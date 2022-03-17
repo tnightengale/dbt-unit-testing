@@ -56,7 +56,8 @@
 {% macro fake_source_sql(node) %}
   {% set source_relation = dbt_utils.get_relations_by_pattern(
       schema_pattern=node.schema,
-      table_pattern=node.name
+      table_pattern=node.name,
+      database=node.database
   ) %}
   {% if source_relation | length > 0 %}
     {%- set source_sql -%}
