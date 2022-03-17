@@ -67,7 +67,7 @@
         {% set node = graph.nodes[ "snapshot." ~ project_name ~ "." ~ model_name] -%}
         {{ dbt_unit_testing.fake_seed_sql(node) }}
       {% else %}
-        {{ dbt_unit_testing.build_model_complete_sql(model_name, [], include_sources = true) }}
+        {{ dbt_unit_testing.build_model_complete_sql(model_name, []) }}
       {% endif %}
     {%- endset -%}
 
