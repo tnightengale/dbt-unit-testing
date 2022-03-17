@@ -74,7 +74,6 @@
       {% endfor %}
       select {{ columns | join (",") }}
     {% else %}
-      {{ debug() }}
       {{ exceptions.raise_compiler_error("Source " ~ node.name ~ " columns must be declared in sources.yml, or it must exist in database") }}
     {% endif %}
   {% endif %}
