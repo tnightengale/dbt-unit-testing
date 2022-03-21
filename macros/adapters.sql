@@ -21,3 +21,11 @@
       {{ return('"' ~ column_name | upper ~ '"') }}
     {% endif %}
 {% endmacro %}
+
+{%- macro fetch_relation_name(relation) -%}
+    {%- do return(adapter.dispatch('fetch_relation_name','dbt_unit_testing')(relation)) -%}
+{%- endmacro -%}
+
+{%- macro default__fetch_relation_name(relation) -%}
+  {%- do return(relation.name) -%}
+{%- endmacro -%}

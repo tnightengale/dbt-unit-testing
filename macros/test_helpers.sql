@@ -21,7 +21,7 @@
 {% endmacro %}
 
 {% macro debug(value) %}
-  {% do log (value, info=true) %}
+  {% do log(value, info=true) %}
 {% endmacro %}
 
 {% macro map(items, f) %}
@@ -33,27 +33,28 @@
 {% endmacro %}
 
 {% macro node_by_id(node_id) %}]
-
-  {% if node_id.startswith('model') or node_id.startswith('seed') or node_id.startswith('snapshot') %}
-    {% set node = graph.nodes[node_id] %}
-  {% elif  node_id.startswith('source') %}
-    {% set node = graph.sources[node_id] %}
-  {% else %}
-    {% do exceptions.raise_compiler_error("Invalid node type for node: " ~ node_id) %}
+  {% set node = {} %}
+  {% if execute %}
+    {% if node_id.startswith('model') or node_id.startswith('seed') or node_id.startswith('snapshot') %}
+      {% set node = graph.get("nodes", {}).get(node_id) %}
+    {% elif  node_id.startswith('source') %}
+      {% set node = graph.get("sources", {}).get(node_id) %}
+    {% else %}
+      {% do exceptions.raise_compiler_error("Invalid node type for node: " ~ node_id) %}
+    {% endif %}
+    {% do return(node) %}
   {% endif %}
-
-  {{ return(node) }}
 {% endmacro %}
 
-{% macro model_node (model_name) %}
-  {{ return (graph.nodes["model." ~ project_name ~ "." ~ model_name]) }}
+{% macro model_node(model_name) %}
+  {{ return(graph.get("nodes",{}).get("model." ~ project_name ~ "." ~ model_name)) }}
 {% endmacro %}
 
-{% macro source_node (source_name, model_name) %}
-  {{ return (graph.sources["source." ~ project_name ~ "." ~ source_name ~ "." ~ model_name]) }}
+{% macro source_node(source_name, model_name) %}
+  {{ return(graph.get("sources", {}).get("source." ~ project_name ~ "." ~ source_name ~ "." ~ model_name)) }}
 {% endmacro %}
 
-{% macro fake_source_sql(node) %}
+{% macro  fake_source_sql(node) %}
   {% set source_relation = dbt_utils.get_relations_by_pattern(
       schema_pattern=node.schema,
       table_pattern=node.name,
@@ -82,14 +83,15 @@
 {% macro fake_seed_sql(node) %}
   {% set source_relation = dbt_utils.get_relations_by_pattern(
       schema_pattern=node.schema,
-      table_pattern=node.name
+      table_pattern=node.name,
+      database=node.database
   ) %}
   {% if source_relation | length > 0 %}
     {%- set source_sql -%}
-      select * from {{ node.schema }}.{{ node.name }} where false
+      select * from {{ node.database }}.{{ node.schema }}.{{ node.name }} where false
     {%- endset -%}
     select {{ dbt_unit_testing.extract_columns_list(source_sql) | join (",") }}
-    from {{ node.schema }}.{{ node.name }}
+    from {{ node.database }}.{{ node.schema }}.{{ node.name }}
     where false
   {% else %}
     {% if node.config and node.config.column_types %}
